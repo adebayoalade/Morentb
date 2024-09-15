@@ -59,10 +59,11 @@ router.get("/find/:userId", verifyTokenAndAuthorization, async(req, res) => {
     }
 });
 
+
 //Get monthly income 
 router.get("/income", verifyTokenAndAdmin, async(req, res) => {
     const date = new Date();
-    const lastMonth = new Date(date.setMonth(lastMonth.getMonth() -1 ));
+    const lastMonth = new Date(date.setMonth(date.getMonth() -1 ));
     const previousMonth = new Date(new Date().setMonth(lastMonth.getMonth() -1 ));
 
     try {
