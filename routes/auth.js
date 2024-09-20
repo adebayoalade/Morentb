@@ -4,6 +4,8 @@ const router = express.Router();
 const cryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { verifyToken } = require("../middleware/verifyToken");
+
 
 //register
 router.post("/register", async(req, res) => {
@@ -60,7 +62,33 @@ router.post("/login", async (req, res) => {
       res.status(500).json(error);
     }
   });
-  
+
+  // Verify Token
+router.get("/verify", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { password, ...userData } = user._doc;
+
+    // You might want to generate a new token here to extend the session
+    const newToken = jwt.sign(
+      { id: user._id, isAdmin: user.isAdmin },
+      process.env.JWT_SEC,
+      { expiresIn: "3d" }
+    );
+
+    res.status(200).json({
+      user: userData,
+      accessToken: newToken,
+    });
+  } catch (error) {
+    console.error("Error in verifying user's access from the backend:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 module.exports = router;
     
